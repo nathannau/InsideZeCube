@@ -1,7 +1,13 @@
+
 import adsk.core # pylint: disable=import-error
 import adsk.fusion # pylint: disable=import-error
 import adsk.cam # pylint: disable=import-error
 import traceback
+
+from .GenCmdDestroyHandler import GenCmdDestroyHandler
+from .GenCmdInputChangedHandler import GenCmdInputChangedHandler
+from .GenCmdExecutePreviewHandler import GenCmdExecutePreviewHandler
+from .GenCmdExecuteHandler import GenCmdExecuteHandler
 
 _handlers = []
 
@@ -19,22 +25,22 @@ class GenCmdCreatedHandler(adsk.core.CommandCreatedEventHandler):
             cmd = adsk.core.Command.cast(args.command)
 
             # Connect to the command destroyed event.
-            onDestroy = MyCommandDestroyHandler()
+            onDestroy = GenCmdDestroyHandler()
             cmd.destroy.add(onDestroy)
             _handlers.append(onDestroy)
 
             # Connect to the input changed event.           
-            onInputChanged = MyCommandInputChangedHandler()
+            onInputChanged = GenCmdInputChangedHandler()
             cmd.inputChanged.add(onInputChanged)
             _handlers.append(onInputChanged)
 
             # Connect to the command execute preview event.           
-            onExecutePreview = MyCommandExecutePreviewHandler()
+            onExecutePreview = GenCmdExecutePreviewHandler()
             cmd.executePreview.add(onExecutePreview)
             _handlers.append(onExecutePreview)
 
             # Connect to the command execute event.           
-            onExecute = MyCommandExecuteHandler()
+            onExecute = GenCmdExecuteHandler()
             cmd.execute.add(onExecute)
             _handlers.append(onExecute)
 

@@ -11,7 +11,7 @@ class GenCmdDestroyHandler(adsk.core.CommandEventHandler):
         try:
             app = adsk.core.Application.get()
             ui  = app.userInterface
-            adsk.terminate()
+            # adsk.terminate()
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
