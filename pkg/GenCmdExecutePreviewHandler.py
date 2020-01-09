@@ -2,7 +2,9 @@ import adsk.core # pylint: disable=import-error
 import adsk.fusion # pylint: disable=import-error
 import adsk.cam # pylint: disable=import-error
 import traceback
-from . import Generator, Builder, BuilderSketch
+from .Generator import Generator
+from .Builder import Builder
+from .BuilderSketch import BuilderSketch
 
 class GenCmdExecutePreviewHandler(adsk.core.CommandEventHandler):
     cache = {}
