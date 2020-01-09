@@ -1,1 +1,1 @@
-from .MyCommandCreatedHandler import MyCommandCreatedHandler
+from .GenCmdCreatedHandler import GenCmdCreatedHandler

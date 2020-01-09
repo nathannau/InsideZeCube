@@ -1,11 +1,10 @@
 #Author-Nathan NAU
 #Description-Generateur de InsideZeCude
 
-import os, sys
-# sys.path.append(os.path.dirname(os.path.abspath('./pkg')))
-sys.path.append(os.path.dirname(__file__))
-# sys.path.append(os.path.abspath('.'))
-# sys.path.append(os.path.abspath('./my_pkg'))
+import os, sys, glob
+selfDir = os.path.dirname(__file__)
+if selfDir not in sys.path:
+    sys.path.append(selfDir)
 
 import adsk.core # pylint: disable=import-error
 import adsk.fusion # pylint: disable=import-error
@@ -13,15 +12,10 @@ import adsk.cam # pylint: disable=import-error
 import traceback
 import time
 
-# import pkg
-import importlib
-from importlib import reload, invalidate_caches
-pkg = importlib.import_module('pkg')
-importlib.invalidate_caches()
-pkg = importlib.reload(pkg)
+import pkg
 
 
-
+_handlers = []
 btnId = 'IZCGId'+str(round(time.time()))
 
 def run(context):
@@ -37,9 +31,9 @@ def run(context):
             '',
             './/Resources//Generator')
 
-        onCommandCreated = pkg.MyCommandCreatedHandler()
+        onCommandCreated = pkg.GenCmdCreatedHandler()
         btn.commandCreated.add(onCommandCreated)
-        # _handlers.append(onCommandCreated)
+        _handlers.append(onCommandCreated)
 
 
         ssap = ui.allToolbarPanels.itemById('SolidScriptsAddinsPanel')
@@ -60,11 +54,23 @@ def stop(context):
             btn.deleteMe()
         ssap = ui.allToolbarPanels.itemById('SolidScriptsAddinsPanel')
         btnc = ssap.controls.itemById(btnId)
+
         if btnc:
             btnc.deleteMe()
+
+        unloadPkg()
 
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-
+def unloadPkg():
+    basePath = os.path.dirname(__file__)+'/'
+    for file in glob.glob(basePath+'pkg/**.py', recursive=True):
+        file = file[len(basePath):]
+        file = (file.replace('.py','') 
+                    .replace('\\','/')
+                    .replace('/','.')
+                    .replace('.__init__', ''))
+        if file in sys.modules:
+            del sys.modules[file]
