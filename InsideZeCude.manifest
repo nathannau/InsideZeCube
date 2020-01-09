@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"79721767-e18e-4ae2-9d60-aa15563bf695",
+	"author":	"Nathan NAU",
+	"description":	{
+		"":	"Generateur de InsideZeCude"
+	},
+	"version":	"1.0.0",
+	"runOnStartup":	false,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
