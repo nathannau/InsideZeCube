@@ -8,7 +8,7 @@ from . import Generator
 
 class BuilderSketch(Builder):
 
-    def build(self, gen:Generator, sizeBall:float, sizeSpace:float):
+    def build(self, gen:Generator, sizeBall:float, sizeSpace:float, extremity:str):
         app = adsk.core.Application.get()
         ui  = app.userInterface
 

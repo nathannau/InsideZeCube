@@ -3,12 +3,12 @@ import adsk.fusion # pylint: disable=import-error
 import adsk.cam # pylint: disable=import-error
 import math
 import traceback
-from . import Builder
-from . import Generator
+from .Builder import Builder
+from .Generator import Generator
 
 class BuilderPipe(Builder):
 
-    def build(self, gen:Generator, sizeBall:float, sizeSpace:float):
+    def build(self, gen:Generator, sizeBall:float, sizeSpace:float, extremity:str):
         app = adsk.core.Application.get()
         ui  = app.userInterface
 
@@ -77,6 +77,68 @@ class BuilderPipe(Builder):
                         bf.finishEdit()
                         progressDialog.hide()          
                         return
+
+        if extremity == "Open":
+            for p in gen.extremities:
+                t = gen.cube[gen.cubePos(p['X'], p['Y'], p['Z'])] 
+                if t == Generator.START:
+                    self._cutAt(
+                        comp, cube, capsColl, 
+                        comp.zConstructionAxis.geometry.direction, 
+                        p['X'] * delta + offset, 
+                        p['Y'] * delta + offset, 
+                        - delta + offset
+                    )
+                if t == Generator.STOP:
+                    self._cutAt(
+                        comp, cube, capsColl, 
+                        comp.zConstructionAxis.geometry.direction,
+                        p['X'] * delta + offset, 
+                        p['Y'] * delta + offset,
+                        (gen.sizeZ-1) * delta + offset
+                    )
+
+        if extremity == "Window":
+            windowStartSketch = comp.sketches.add(comp.xYConstructionPlane)
+            x1 = gen.extremities[0]['X'] * delta + offset - sizeBall / 4
+            y1 = gen.extremities[0]['Y'] * delta + offset - sizeBall / 4
+            x2 = gen.extremities[1]['X'] * delta + offset + sizeBall / 4
+            y2 = gen.extremities[1]['Y'] * delta + offset + sizeBall / 4
+            windowStartSketch.sketchCurves.sketchLines.addTwoPointRectangle(
+                adsk.core.Point3D.create(x1, y1, 0),
+                adsk.core.Point3D.create(x2, y2, 0)
+            )
+            comp.features.extrudeFeatures.addSimple(
+                windowStartSketch.profiles.item(0),
+                adsk.core.ValueInput.createByReal(sizeBall/2 + sizeSpace),
+                adsk.fusion.FeatureOperations.CutFeatureOperation
+            )
+
+            windowStartSketch = comp.sketches.add(comp.xYConstructionPlane)
+            x1 = gen.extremities[2]['X'] * delta + offset - sizeBall / 4
+            y1 = gen.extremities[2]['Y'] * delta + offset - sizeBall / 4
+            x2 = gen.extremities[3]['X'] * delta + offset + sizeBall / 4
+            y2 = gen.extremities[3]['Y'] * delta + offset + sizeBall / 4
+            windowStartSketch.sketchCurves.sketchLines.addTwoPointRectangle(
+                adsk.core.Point3D.create(x1, y1, 0),
+                adsk.core.Point3D.create(x2, y2, 0)
+            )
+            extrudeInput = comp.features.extrudeFeatures.createInput(
+                windowStartSketch.profiles.item(0),
+                adsk.fusion.FeatureOperations.CutFeatureOperation
+            )
+
+            extrudeInput.setOneSideExtent(
+                adsk.fusion.DistanceExtentDefinition.create(
+                    adsk.core.ValueInput.createByReal(sizeBall/2 + sizeSpace)
+                ),
+                adsk.fusion.ExtentDirections.PositiveExtentDirection
+            )
+            extrudeInput.startExtent = adsk.fusion.OffsetStartDefinition.create(
+                adsk.core.ValueInput.createByReal((gen.sizeZ-1) * delta + offset),
+            )
+
+            comp.features.extrudeFeatures.add(extrudeInput)
 
         for b in caps:
             b.deleteMe()

@@ -28,21 +28,24 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
         startYInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('startY'))
         stopXInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('stopX'))
         stopYInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('stopY'))
+        extremityTypeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('extremityType'))
         fillHolesInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('fillHoles'))
         seedInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('seed'))
         # displayInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('display'))
         renderModeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('renderMode'))
 
+
         self.display(xInput.value, yInput.value, zInput.value, bsInput.value, ssInput.value,
             startXInput.valueOne, startXInput.valueTwo, startYInput.valueOne,
             stopXInput.valueOne, stopXInput.valueTwo, stopYInput.valueOne,
+            extremityTypeInput.selectedItem.name, 
             fillHolesInput.value, seedInput.valueOne, renderModeInput.selectedItem.name)
 
         eventArgs.isValidResult = True
 
     def display(self, sizeX:int, sizeY:int, sizeZ:int, sizeBall:float, sizeSpace:float,
         startX1:int, startX2:int, startY:int, stopX1:int, stopX2:int, stopY:int, 
-        fillHoles:bool, seed:int, mode:str):
+        extremity:str, fillHoles:bool, seed:int, mode:str):
         
         key = "%d-%d-%d-%d-%d-%d-%d-%d-%d-%d-%d" % (
             sizeX, sizeY, sizeZ, 
@@ -67,4 +70,4 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
         elif mode == 'Square':
             pass
 
-        if builder: builder.build(gen, sizeBall, sizeSpace)
+        if builder: builder.build(gen, sizeBall, sizeSpace, extremity)

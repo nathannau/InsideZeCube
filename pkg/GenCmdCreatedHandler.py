@@ -63,6 +63,11 @@ class GenCmdCreatedHandler(adsk.core.CommandCreatedEventHandler):
             grpstart.children.addIntegerSliderCommandInput('stopX', 'X', 1, xInput.value, True)
             grpstart.children.addIntegerSliderCommandInput('stopY', 'Y', 1, yInput.value, False)
 
+            extremityType = inputs.addDropDownCommandInput('extremityType', 'Extrimité', adsk.core.DropDownStyles.TextListDropDownStyle)
+            extremityTypeItems = extremityType.listItems
+            extremityTypeItems.add('Window', True, '')
+            extremityTypeItems.add('Open', False, '')
+
             inputs.addBoolValueInput('fillHoles', 'Remplir les trous', True, '', True)
             inputs.addIntegerSliderCommandInput('seed', 'Seed', 0, 0xffff, False)
 

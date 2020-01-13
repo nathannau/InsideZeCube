@@ -12,6 +12,7 @@ class Generator:
     sizeZ = 0
     cube = []
     paths = {}
+    extremities = []
 
     def __init__(self, sizeX:int, sizeY:int, sizeZ:int):
         self.sizeX = sizeX
@@ -37,6 +38,12 @@ class Generator:
         startX1:int, startX2:int, startY:int, 
         stopX1:int, stopX2:int, stopY:int):
 
+        self.extremities = [
+            { 'X': startX1-1, 'Y': startY-1, 'Z': 0 },
+            { 'X': startX2-1, 'Y': startY-1, 'Z': 0 },
+            { 'X': stopX1-1,  'Y': stopY-1,  'Z': self.sizeZ-1 },
+            { 'X': stopX2-1,  'Y': stopY-1,  'Z': self.sizeZ-1 },
+        ]
         x0 = self.cubePos(0, startY-1, 0)
         for x in range(startX1-1, startX2):
             if x == startX1-1 or x == startX2-1:
@@ -69,6 +76,7 @@ class Generator:
             'Y': self.paths['Y'][:],
             'Z': self.paths['Z'][:],
         }
+        ret.extremities = self.extremities[:]
         return ret
 
     def build(self, 

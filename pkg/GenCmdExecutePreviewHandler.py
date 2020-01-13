@@ -61,7 +61,7 @@ class GenCmdExecutePreviewHandler(adsk.core.CommandEventHandler):
             gen.initStart(startX1, startX2, startY, stopX1, stopX2, stopY)
 
         builder = BuilderSketch()
-        builder.build(gen, sizeBall, sizeSpace)
+        builder.build(gen, sizeBall, sizeSpace, "")
 
 
     def initStartPaths(self, sizeX:int, sizeY:int, sizeZ:int,
