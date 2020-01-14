@@ -41,6 +41,10 @@ class GenCmdInputChangedHandler(adsk.core.InputChangedEventHandler):
                 if stopYInput.valueOne > yInput.value:
                     stopYInput.valueOne = yInput.value
 
+            if cmdInput.id == 'peephole':
+                peepholeInput = adsk.core.DropDownCommandInput.cast(cmdInput)
+                peepholeSizeInput = adsk.core.ValueCommandInput.cast(inputs.itemById('peepholeSize'))
+                peepholeSizeInput.isVisible = (peepholeInput.selectedItem.name != 'None')
           
         except:
             if ui:

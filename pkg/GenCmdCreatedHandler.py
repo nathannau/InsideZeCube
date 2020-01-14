@@ -68,6 +68,14 @@ class GenCmdCreatedHandler(adsk.core.CommandCreatedEventHandler):
             extremityTypeItems.add('Window', True, '')
             extremityTypeItems.add('Open', False, '')
 
+            peepholeInput = inputs.addDropDownCommandInput('peephole', 'Juda', adsk.core.DropDownStyles.TextListDropDownStyle)
+            peepholeItems = peepholeInput.listItems
+            peepholeItems.add('None', True, '')
+            peepholeItems.add('Full', False, '')
+            peepholeItems.add('External', False, '')
+            peepholeSizeInput = inputs.addValueInput('peepholeSize', 'Largeur des judas', 'mm', adsk.core.ValueInput.createByReal(.3))
+            peepholeSizeInput.isVisible = False
+
             inputs.addBoolValueInput('fillHoles', 'Remplir les trous', True, '', True)
             inputs.addIntegerSliderCommandInput('seed', 'Seed', 0, 0xffff, False)
 
