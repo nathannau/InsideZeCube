@@ -8,7 +8,7 @@ from .Generator import Generator
 
 class BuilderPipe(Builder):
 
-    def build(self, gen:Generator, sizeBall:float, sizeSpace:float, extremity:str):
+    def build(self, gen:Generator, sizeBall:float, sizeSpace:float, extremity:str, peephole:str, peepholeSize:float):
         app = adsk.core.Application.get()
         ui  = app.userInterface
 
@@ -33,7 +33,7 @@ class BuilderPipe(Builder):
             adsk.core.ValueInput.createByReal(z),
             adsk.fusion.FeatureOperations.NewBodyFeatureOperation
         ).bodies
-        
+
         caps = self._caps(comp, sizeBall, sizeSpace)
         capsColl = adsk.core.ObjectCollection.create()
         for b in caps:
@@ -73,27 +73,27 @@ class BuilderPipe(Builder):
                             px, py, pz)
 
                     progressDialog.progressValue += 1
-                    if (progressDialog.wasCancelled): 
+                    if (progressDialog.wasCancelled):
                         bf.finishEdit()
-                        progressDialog.hide()          
+                        progressDialog.hide()
                         return
 
         if extremity == "Open":
             for p in gen.extremities:
-                t = gen.cube[gen.cubePos(p['X'], p['Y'], p['Z'])] 
+                t = gen.cube[gen.cubePos(p['X'], p['Y'], p['Z'])]
                 if t == Generator.START:
                     self._cutAt(
-                        comp, cube, capsColl, 
-                        comp.zConstructionAxis.geometry.direction, 
-                        p['X'] * delta + offset, 
-                        p['Y'] * delta + offset, 
+                        comp, cube, capsColl,
+                        comp.zConstructionAxis.geometry.direction,
+                        p['X'] * delta + offset,
+                        p['Y'] * delta + offset,
                         - delta + offset
                     )
                 if t == Generator.STOP:
                     self._cutAt(
-                        comp, cube, capsColl, 
+                        comp, cube, capsColl,
                         comp.zConstructionAxis.geometry.direction,
-                        p['X'] * delta + offset, 
+                        p['X'] * delta + offset,
                         p['Y'] * delta + offset,
                         (gen.sizeZ-1) * delta + offset
                     )
@@ -143,13 +143,87 @@ class BuilderPipe(Builder):
         for b in caps:
             b.deleteMe()
 
+        progressDialog.hide()
+
+        if peephole != 'None':
+            m = max(gen.sizeX, gen.sizeY, gen.sizeZ)
+            progressDialog.show('InsideZeCube Generator', 'Judas', 0, m * m, 1)
+            peepholeSketch = comp.sketches.add(comp.xYConstructionPlane)
+            peepholeSketch.sketchCurves.sketchCircles.addByCenterRadius(
+                adsk.core.Point3D.create(0, 0, 0),
+                peepholeSize/2
+            )
+            peepholeBody = comp.features.extrudeFeatures.addSimple(
+                peepholeSketch.profiles.item(0),
+                adsk.core.ValueInput.createByReal(
+                    (sizeBall+sizeSpace)*m+sizeSpace
+                    if peephole == "Full" else
+                    sizeBall/2+sizeSpace
+                ),
+                adsk.fusion.FeatureOperations.NewBodyFeatureOperation
+            ).bodies
+            peepholeColl = adsk.core.ObjectCollection.create()
+            peepholeColl.add(peepholeBody.item(0))
+
+            for j in range(m):
+                for i in range(m):
+                    p = [] if i >= gen.sizeX and j >= gen.sizeY else \
+                        [0] if peephole == 'Full' else \
+                        [0, (gen.sizeZ-1) * delta + offset] # 'External'
+                    for k in p:
+                        self._cutAt(
+                            comp, cube, peepholeColl,
+                            comp.zConstructionAxis.geometry.direction,
+                            i * delta + offset,
+                            j * delta + offset,
+                            k
+                        )
+
+                    p = [] if i >= gen.sizeX and j >= gen.sizeZ else \
+                        [0] if peephole == 'Full' else \
+                        [0, (gen.sizeY-1) * delta + offset] # 'External'
+                    for k in p:
+                        self._cutAt(
+                            comp, cube, peepholeColl,
+                            comp.yConstructionAxis.geometry.direction,
+                            i * delta + offset,
+                            k,
+                            j * delta + offset
+                        )
+
+
+                    p = [] if i >= gen.sizeY and j >= gen.sizeZ else \
+                        [0] if peephole == 'Full' else \
+                        [0, (gen.sizeX-1) * delta + offset] # 'External'
+                    for k in p:
+                        self._cutAt(
+                            comp, cube, peepholeColl,
+                            comp.xConstructionAxis.geometry.direction,
+                            k,
+                            i * delta + offset,
+                            j * delta + offset
+                        )
+
+                    # pass
+                    progressDialog.progressValue += 1
+                    if (progressDialog.wasCancelled):
+                        bf.finishEdit()
+                        progressDialog.hide()
+                        return
+
+            peepholeBody.item(0).deleteMe()
+            # peephole:str, peepholeSize:float)
+            # 'None', 'Full', 'External'
+
+            progressDialog.hide()
+
         bf.finishEdit()
 
-        progressDialog.hide()          
+        # progressDialog.hide()
 
     def _caps(self, comp:adsk.fusion.Component, sizeBall:float, sizeSpace:float):
         # Build Capsule
-        
+
         # # Create Sketch
         roundSketch = comp.sketches.add(comp.xYConstructionPlane)
         roundSketch.sketchCurves.sketchCircles.addByCenterRadius(
@@ -170,7 +244,7 @@ class BuilderPipe(Builder):
         angle = adsk.core.ValueInput.createByReal(math.pi*2)
         revolveInput.setAngleExtent(False, angle)
         sphere1 = comp.features.revolveFeatures.add(revolveInput).bodies
-        
+
         # # Create Sphere 2
         revolveInput = comp.features.revolveFeatures.createInput(
             roundSketch.profiles.item(0),
@@ -185,7 +259,7 @@ class BuilderPipe(Builder):
         sphereColl.add(sphere2.item(0))
         transform = adsk.core.Matrix3D.create()
         transform.translation = adsk.core.Vector3D.create(
-            0, 
+            0,
             0,
             sizeBall + sizeSpace
         )
@@ -214,9 +288,9 @@ class BuilderPipe(Builder):
         return [sphere1[0], sphere2[0], pipe[0] ]
         # return None
 
-    def _cutAt(self, comp:adsk.fusion.Component, 
+    def _cutAt(self, comp:adsk.fusion.Component,
         cube: adsk.fusion.BRepBodies,
-        capsColl:adsk.core.ObjectCollection, 
+        capsColl:adsk.core.ObjectCollection,
         direction:adsk.core.Vector3D, px:float, py:float, pz:float):
         transform = adsk.core.Matrix3D.create()
         transform.setToRotateTo(
@@ -230,7 +304,7 @@ class BuilderPipe(Builder):
             transform
         )
         comp.features.moveFeatures.add(moveInput)
-        
+
         combineInput = comp.features.combineFeatures.createInput(
             cube[0],
             capsColl

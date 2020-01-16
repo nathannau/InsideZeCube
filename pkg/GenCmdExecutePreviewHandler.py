@@ -39,7 +39,7 @@ class GenCmdExecutePreviewHandler(adsk.core.CommandEventHandler):
         eventArgs.isValidResult = False
 
     def display(self, sizeX:int, sizeY:int, sizeZ:int, sizeBall:float, sizeSpace:float,
-        startX1:int, startX2:int, startY:int, stopX1:int, stopX2:int, stopY:int, 
+        startX1:int, startX2:int, startY:int, stopX1:int, stopX2:int, stopY:int,
         fillHoles:bool, seed:int, display:bool):
         
         if display:
@@ -61,7 +61,7 @@ class GenCmdExecutePreviewHandler(adsk.core.CommandEventHandler):
             gen.initStart(startX1, startX2, startY, stopX1, stopX2, stopY)
 
         builder = BuilderSketch()
-        builder.build(gen, sizeBall, sizeSpace, "")
+        builder.build(gen, sizeBall, sizeSpace, '', 'None', 0.0)
 
 
     def initStartPaths(self, sizeX:int, sizeY:int, sizeZ:int,

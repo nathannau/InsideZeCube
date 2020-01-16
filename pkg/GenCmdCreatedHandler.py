@@ -83,7 +83,7 @@ class GenCmdCreatedHandler(adsk.core.CommandCreatedEventHandler):
             renderModeItems = renderMode.listItems
             renderModeItems.add('Sketch', False, '')
             renderModeItems.add('Pipe', True, '')
-            renderModeItems.add('Square', False, '')
+            # renderModeItems.add('Square', False, '')
 
             inputs.addBoolValueInput('display', 'Afficher', True, '', False)
 

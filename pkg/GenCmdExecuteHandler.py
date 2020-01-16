@@ -29,9 +29,10 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
         stopXInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('stopX'))
         stopYInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('stopY'))
         extremityTypeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('extremityType'))
+        peepholeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('peephole'))
+        peepholeSizeInput = adsk.core.ValueCommandInput.cast(inputs.itemById('peepholeSize'))
         fillHolesInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('fillHoles'))
         seedInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('seed'))
-        # displayInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('display'))
         renderModeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('renderMode'))
 
 
@@ -39,13 +40,15 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
             startXInput.valueOne, startXInput.valueTwo, startYInput.valueOne,
             stopXInput.valueOne, stopXInput.valueTwo, stopYInput.valueOne,
             extremityTypeInput.selectedItem.name, 
+            peepholeInput.selectedItem.name, peepholeSizeInput.value,
             fillHolesInput.value, seedInput.valueOne, renderModeInput.selectedItem.name)
 
         eventArgs.isValidResult = True
 
     def display(self, sizeX:int, sizeY:int, sizeZ:int, sizeBall:float, sizeSpace:float,
         startX1:int, startX2:int, startY:int, stopX1:int, stopX2:int, stopY:int, 
-        extremity:str, fillHoles:bool, seed:int, mode:str):
+        extremity:str, peephole:str, peepholeSize:float,
+        fillHoles:bool, seed:int, mode:str):
         
         key = "%d-%d-%d-%d-%d-%d-%d-%d-%d-%d-%d" % (
             sizeX, sizeY, sizeZ, 
@@ -70,4 +73,8 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
         elif mode == 'Square':
             pass
 
-        if builder: builder.build(gen, sizeBall, sizeSpace, extremity)
+        if builder: 
+            builder.build(
+                gen, sizeBall, sizeSpace, 
+                extremity, peephole, peepholeSize
+            )
