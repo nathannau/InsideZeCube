@@ -77,13 +77,14 @@ class GenCmdCreatedHandler(adsk.core.CommandCreatedEventHandler):
             peepholeSizeInput.isVisible = False
 
             inputs.addBoolValueInput('fillHoles', 'Remplir les trous', True, '', True)
+            inputs.addBoolValueInput('spliceLevel', 'Découper les niveaux', True, '', True)
             inputs.addIntegerSliderCommandInput('seed', 'Seed', 0, 0xffff, False)
 
             renderMode = inputs.addDropDownCommandInput('renderMode', 'Render', adsk.core.DropDownStyles.TextListDropDownStyle)
             renderModeItems = renderMode.listItems
             renderModeItems.add('Sketch', False, '')
-            renderModeItems.add('Pipe', True, '')
-            # renderModeItems.add('Square', False, '')
+            renderModeItems.add('Pipe', False, '')
+            renderModeItems.add('Square', True, '')
 
             inputs.addBoolValueInput('display', 'Afficher', True, '', False)
 

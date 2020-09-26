@@ -6,6 +6,7 @@ from .Generator import Generator
 from .Builder import Builder
 from .BuilderPipe import BuilderPipe
 from .BuilderSketch import BuilderSketch
+from .BuilderSquare import BuilderSquare
 
 class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
     cache = {}
@@ -32,6 +33,7 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
         peepholeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('peephole'))
         peepholeSizeInput = adsk.core.ValueCommandInput.cast(inputs.itemById('peepholeSize'))
         fillHolesInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('fillHoles'))
+        spliceLevelInput = adsk.core.BoolValueCommandInput.cast(inputs.itemById('spliceLevel'))
         seedInput = adsk.core.IntegerSliderCommandInput.cast(inputs.itemById('seed'))
         renderModeInput = adsk.core.DropDownCommandInput.cast(inputs.itemById('renderMode'))
 
@@ -41,14 +43,15 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
             stopXInput.valueOne, stopXInput.valueTwo, stopYInput.valueOne,
             extremityTypeInput.selectedItem.name, 
             peepholeInput.selectedItem.name, peepholeSizeInput.value,
-            fillHolesInput.value, seedInput.valueOne, renderModeInput.selectedItem.name)
+            fillHolesInput.value, spliceLevelInput.value, seedInput.valueOne, 
+            renderModeInput.selectedItem.name)
 
         eventArgs.isValidResult = True
 
     def display(self, sizeX:int, sizeY:int, sizeZ:int, sizeBall:float, sizeSpace:float,
         startX1:int, startX2:int, startY:int, stopX1:int, stopX2:int, stopY:int, 
         extremity:str, peephole:str, peepholeSize:float,
-        fillHoles:bool, seed:int, mode:str):
+        fillHoles:bool, spliceLevel:bool, seed:int, mode:str):
         
         key = "%d-%d-%d-%d-%d-%d-%d-%d-%d-%d-%d" % (
             sizeX, sizeY, sizeZ, 
@@ -71,10 +74,12 @@ class GenCmdExecuteHandler(adsk.core.CommandEventHandler):
             builder = BuilderPipe()
             # buildPipe(gen, sizeBall, sizeSpace)
         elif mode == 'Square':
+            builder = BuilderSquare()
             pass
 
         if builder: 
             builder.build(
                 gen, sizeBall, sizeSpace, 
-                extremity, peephole, peepholeSize
+                extremity, peephole, peepholeSize,
+                spliceLevel
             )
